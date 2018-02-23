@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Juego bolita</title>
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</head>
+
+	<style>
+		
+	#body {
+	   width: 100%;
+	   height: 100%; 
+	   position: absolute;
+	}
+
+	#stage {
+		height: 100%;
+		width: 100%;
+		position: relative;
+		
+	}
+
+	#box{
+		background-color: green;
+		border: 1px solid;
+		height: 30px;
+		width: 60px;
+		/*margin:  5px;*/
+		float: left;
+
+
+	}
+	#platform{
+		background-color: yellow;
+		border: 1px solid;
+		position: absolute;
+		height: 30px;
+		width: 150px;
+		bottom:  10px;
+		left: 45%;
+	}
+	#ball{
+		background-color: black;
+		border: 1px solid;
+		border-radius: 75%;
+		position: absolute;
+		height: 30px;
+		width: 30px;
+		bottom: 50px;
+		left: 340px;
+		
+	}
+
+	#table{
+		vertical-align:  center;
+
+	}
+
+	#table tr td{
+		width: 60px;
+		height: 30px
+	}
+	</style>
+<script>
+	
+	function GenerateStage(){
+
+		var stage =[
+			[{life:3},{life:3},{life:3},{life:3},{life:3},{life:3},{life:3},{life:3},{life:3},{life:3},{life:3},{life:3}],
+			[{life:2},{life:2},{life:2},{life:2},{life:2},{life:2},{life:2},{life:2},{life:2},{life:2},{life:2},{life:2}],
+			[{life:1},{life:1},{life:1},{life:1},{life:1},{life:1},{life:1},{life:1},{life:1},{life:1},{life:1},{life:1}]
+		];
+
+
+		$('#stage').append("<table id=\"table\"  style=\"margin: auto;\">");
+
+		for (var i = 0; i < stage.length; i++) {
+				var tr = $('#table').append("<tr>");
+			for (var j = 0; j < stage[i].length; j++){
+					
+				if(stage[i][j].life == 3){
+					tr.append(" <td> <div data-life=\""+ stage[i][j].life+"\" class=\"brick\" id=\"box\" style=\"background-color:red;\">");
+					//$('#stage').append("<div id=\"box\" style=\"background-color:red;\">");
+				}
+
+				if(stage[i][j].life == 2){
+					tr.append(" <td> <div data-life=\""+ stage[i][j].life+"\" class=\"brick\" id=\"box\" style=\"background-color:blue;\">");
+					//$('#stage').append("<div id=\"box\" style=\"background-color:blue;\">");
+				}
+
+				if(stage[i][j].life == 1){
+					tr.append(" <td> <div data-life=\""+ stage[i][j].life+"\" class=\"brick\" id=\"box\" style=\"background-color:green;\">");
+					//$('#stage').append("<div id=\"box\" style=\"background-color:green;\">");
+				}
+				
+			}
+				
+		}
+
+		
+	}
+
+			$(document).on( "keydown",function(event) {
+		    if(event.which == 37){
+		      $("#platform").css({"left":"-=20"});
+		   }
+		    if(event.which == 39){
+		      $("#platform").css({"left":"+=20"});
+		   }
+		});
+
+	var velY = -5;
+	var velX = -5;		
+
+	setInterval("moveBall()", 20);
+
+
+	function moveBall (){ 
+
+		var ball = document.getElementById("ball");
+		//var stage = document.getElementById("stage");
+		var ballY = ball.offsetTop; 
+		var ballX = ball.offsetLeft;
+
+		if (ballY >= window.innerHeight -60 || colPlatform() || colBox() || ballY <= 0) { 
+			velY = -velY;
+	    }
+
+	    //console.log(ballX);
+	    if (ballX >= window.innerWidth -45 || colBox() || ballX <= 0){
+			velX = -velX;
+	    }
+
+	    // el bug de la bola se controla con este if
+
+	   /* if(ballY >= window.innerHeight-60){
+	    	alert("Perdistes");
+	    }*/
+	    colPlatform(ball);
+
+		ball.style.top = ballY + velY + "px"; 
+		ball.style.left = ballX + velX + "px"; 
+		
+}
+
+
+	function colPlatform(){
+		var platform = document.getElementById("platform");
+		if((ball.getBoundingClientRect().bottom - 10) >= platform.offsetTop){ // Controlo la  Y
+			if(platform.offsetLeft <= ball.offsetLeft && ball.offsetLeft <= platform.offsetLeft + 150){ 
+			// Controlo la X
+				return true;
+			}
+			
+		} 
+		return false
+	}
+
+	function colBox(){
+		var res = false;
+		$('.brick').each(function(){
+            var bounds = this.getBoundingClientRect();
+            var ballPos = ball.getBoundingClientRect();
+            var life = $(this).data('life');
+            if(life != 0){
+	           if (ballPos.top < bounds.bottom && ballPos.left < bounds.right && ballPos.right > bounds.left ){
+				//console.log("si");
+            	if(life > 0){
+            		console.log("vida");
+            		$(this).data('life', --life);
+            	} 
+            	if(life == 0){
+            		console.log("muerto");
+            		$(this).show().hide("slow");
+            		$(this).css({'visibility': "hidden"});
+            	}
+
+            	res =  true;
+
+            } else {
+            }
+
+ 
+
+
+
+
+
+            	
+            } 
+          })
+		return res; 
+	}
+
+	
+
+
+
+
+</script>
+	
+
+<body id="body" onload="GenerateStage()">
+	<div id="stage">
+		<div id="platform"></div>
+		<div id="ball"></div>
+	</div>
+	
+</body>
+</html>
